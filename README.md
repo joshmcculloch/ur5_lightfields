@@ -1,14 +1,14 @@
 
-'''
+```
 virtualenv -p python3 env
 source env/bin/activate
 
 pip install opencv-python
-'''
+```
 
 Or compile opencv
 
-'''
+```
 wget https://github.com/opencv/opencv/archive/4.2.0.zip -Oopencv-4.2.0.zip
 unzip opencv-4.2.0.zip -d .
 cd opencv-4.2.0/
@@ -26,4 +26,4 @@ make install
 
 #The following should output 4.2.0
 python -c "import cv2; print(cv2.__version__)"
-'''
+```
