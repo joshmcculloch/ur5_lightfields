@@ -12,97 +12,7 @@ from math import pi
 from tqdm import tqdm
 import threading
 
-class RealsenseDriver(object):
-	
-	def __init__(self, color_path, ir1_path, ir2_path, depth_path):
-		self.pipeline = rs.pipeline()
-		self.config = rs.config()
-		self.color_path = color_path
-		self.ir1_path = ir1_path
-		self.ir2_path = ir2_path
-		self.depth_path = depth_path
-		
-		# Enable color stream at full res
-		self.config.enable_stream(
-			stream_type=rs.stream.color, 
-			width=1920, 
-			height=1080, 
-			format=rs.format.rgb8, 
-			framerate=30)
-		
-		self.config.enable_stream(
-			stream_type=rs.stream.infrared,
-			stream_index=1, 
-			width=1280, 
-			height=720, 
-			format=rs.format.y8, 
-			framerate=30)
-			
-		self.config.enable_stream(
-			stream_type=rs.stream.infrared,
-			stream_index=2, 
-			width=1280, 
-			height=720, 
-			format=rs.format.y8, 
-			framerate=30)
-		
-		self.config.enable_stream(
-			stream_type=rs.stream.depth, 
-			width=1280, 
-			height=720, 
-			format=rs.format.z16, 
-			framerate=30)
-		
-		self.profile = self.pipeline.start(self.config)
-		
-		device = self.profile.get_device()
-		sensors = device.query_sensors()
-		for s in sensors:
-			if s.is_depth_sensor():
-				s.set_option(rs.option.emitter_enabled, 0)
-			#print(s)
-			#print(s.is_depth_sensor())
-			#print(s.get_supported_options())
-
-		print("Warming camera")
-		self.warm_camera()
-		print("Done")
-		
-		
-	def warm_camera(self, sec=1.0):
-		"""
-		Run camera for (sec) seconds to allow auto exposure to settle.
-		"""
-		end_time = time.time() + sec
-		while end_time > time.time():
-			frames = self.pipeline.wait_for_frames()
-			
-	def save(self, filename):
-		frames = self.pipeline.wait_for_frames()
-		
-		color_frame = frames.get_color_frame()
-		color_image = np.asanyarray(color_frame.get_data())
-		#Image.fromarray(color_image).save(join(self.color_path, filename+".png"))
-		threading.Thread(target=lambda:Image.fromarray(color_image).save(join(self.color_path, filename+".jpg"), 'JPEG', quality=95)).start()
-		
-		ir1_frame = frames.get_infrared_frame(1)
-		ir1_image = np.asanyarray(ir1_frame.get_data())
-		#Image.fromarray(ir1_image).save(join(self.ir1_path, filename+".png"))
-		threading.Thread(target=lambda:Image.fromarray(ir1_image).save(join(self.ir1_path, filename+".jpg"), 'JPEG', quality=95)).start()
-
-		
-		ir2_frame = frames.get_infrared_frame(2)
-		ir2_image = np.asanyarray(ir2_frame.get_data())
-		#Image.fromarray(ir2_image).save(join(self.ir2_path, filename+".png"))
-		threading.Thread(target=lambda:Image.fromarray(ir2_image).save(join(self.ir2_path, filename+".jpg"), 'JPEG', quality=95)).start()
-		
-		depth_frame = frames.get_depth_frame()
-		depth_image = np.asanyarray(depth_frame.get_data())
-		#Image.fromarray(depth_image).save(join(self.depth_path, filename+".png"))
-		threading.Thread(target=lambda:Image.fromarray(depth_image).save(join(self.depth_path, filename+".png"))).start()
-		
-		return Image.fromarray(ir2_image)
-
+from RealsenseDriver import RealsenseDriver
 
 class ArmDriver(object):
 	
@@ -211,7 +121,7 @@ if __name__ == "__main__":
 			#
 			pbar.update(1)'''
 
-	step_size = 10
+	step_size = 100
 	with tqdm(total=len(list(grid_scan(1000, 200, 700, step_size, step_size, 400)))) as pbar:
 		for xyz in tqdm(grid_scan(1000, 200, 700, step_size, step_size, 400)): 
 			arm.go_to_location_mm(xyz)
