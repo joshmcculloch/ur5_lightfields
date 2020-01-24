@@ -7,14 +7,9 @@ import time
 
 class RealsenseDriver(object):
 	
-	def __init__(self, color_path=None, ir1_path=None, ir2_path=None, depth_path=None):
+	def __init__(self):
 		self.pipeline = rs.pipeline()
 		self.config = rs.config()
-		self.color_path = color_path
-		self.ir1_path = ir1_path
-		self.ir2_path = ir2_path
-		self.depth_path = depth_path
-		self.threaded_save = True
 		
 		# Enable color stream at full res
 		self.config.enable_stream(
@@ -53,17 +48,6 @@ class RealsenseDriver(object):
 		self.ir1_profile = self.pipeline_profile.get_stream(rs.stream.infrared, 1).as_video_stream_profile()
 		self.ir2_profile = self.pipeline_profile.get_stream(rs.stream.infrared, 2).as_video_stream_profile()
 		
-		intrinsics = self.color_profile.get_intrinsics()
-		self.save_intrinsics(intrinsics, 'color')
-		
-		intrinsics = self.ir1_profile.get_intrinsics()
-		self.save_intrinsics(intrinsics, 'ir1')
-		
-		intrinsics = self.ir2_profile.get_intrinsics()
-		self.save_intrinsics(intrinsics, 'ir2')
-		
-		l2r_extrinsics = self.ir1_profile.get_extrinsics_to(self.ir2_profile)
-		
 		self.device = self.pipeline_profile.get_device()
 		self.sensors = self.device.query_sensors()
 		for s in self.sensors:
@@ -88,16 +72,7 @@ class RealsenseDriver(object):
 		while end_time > time.time():
 			frames = self.pipeline.wait_for_frames()
 			
-	def save_intrinsics(self,intrinsics, path):
-		print(path)
-		print(intrinsics.fx)
-		print(intrinsics.fy)
-		print(intrinsics.height)
-		print(intrinsics.model)
-		print(intrinsics.ppx)
-		print(intrinsics.ppy)
-		print(intrinsics.width)
-		print(intrinsics.coeffs)
+
 		
 	def camera_matrix(self, intrinsics):
 		return np.array([
@@ -114,7 +89,11 @@ class RealsenseDriver(object):
 		return self.camera_matrix(intrinsics)
 		
 	def l2r_extrinsics(self):
-		return self.ir1_profile.get_extrinsics_to(self.ir2_profile)
+		extrinsics = self.ir1_profile.get_extrinsics_to(self.ir2_profile)
+		location = np.array(extrinsics.translation)
+		rotation = np.array(extrinsics.rotation).reshape(3,3)
+		return location, rotation
+		
 		
 	def get(self):
 		frames = self.pipeline.wait_for_frames()
@@ -133,7 +112,7 @@ class RealsenseDriver(object):
 		
 		return color_image, ir1_image, ir2_image, depth_image
 		
-			
+			'''
 	def save(self, filename):
 		color_image, ir1_image, ir2_image, depth_image = self.get()
 		if self.threaded_save:
@@ -145,4 +124,4 @@ class RealsenseDriver(object):
 			Image.fromarray(color_image).save(join(self.color_path, filename+".png"))
 			Image.fromarray(ir1_image).save(join(self.ir1_path, filename+".png"))
 			Image.fromarray(ir2_image).save(join(self.ir2_path, filename+".png"))
-			Image.fromarray(depth_image).save(join(self.depth_path, filename+".png"))
+			Image.fromarray(depth_image).save(join(self.depth_path, filename+".png"))'''
