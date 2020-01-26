@@ -111,17 +111,3 @@ class RealsenseDriver(object):
 		depth_image = np.asanyarray(depth_frame.get_data())
 		
 		return color_image, ir1_image, ir2_image, depth_image
-		
-			'''
-	def save(self, filename):
-		color_image, ir1_image, ir2_image, depth_image = self.get()
-		if self.threaded_save:
-			threading.Thread(target=lambda:Image.fromarray(color_image).save(join(self.color_path, filename+".jpg"), 'JPEG', quality=95)).start()
-			threading.Thread(target=lambda:Image.fromarray(ir1_image).save(join(self.ir1_path, filename+".jpg"), 'JPEG', quality=95)).start()
-			threading.Thread(target=lambda:Image.fromarray(ir2_image).save(join(self.ir2_path, filename+".jpg"), 'JPEG', quality=95)).start()
-			threading.Thread(target=lambda:Image.fromarray(depth_image).save(join(self.depth_path, filename+".png"))).start()
-		else:
-			Image.fromarray(color_image).save(join(self.color_path, filename+".png"))
-			Image.fromarray(ir1_image).save(join(self.ir1_path, filename+".png"))
-			Image.fromarray(ir2_image).save(join(self.ir2_path, filename+".png"))
-			Image.fromarray(depth_image).save(join(self.depth_path, filename+".png"))'''
