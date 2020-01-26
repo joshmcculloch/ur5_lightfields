@@ -42,7 +42,6 @@ class MaaraExport(object):
 		self.l2r = dict(location=location, rotation=rotation)
 	
 	def save_images(self, ir1_frame, ir2_frame, pose):
-		print(pose)
 		
 		ir1_filename = join(self.ir1_dir, "%.5d.png" %self.image_counter)
 		Image.fromarray(ir1_frame).save(ir1_filename)
@@ -68,7 +67,7 @@ class MaaraExport(object):
 		ir2 = dict(
 			location=self.l2r['location'], 
 			rotation=self.l2r['rotation'], 
-			views=self.ir1_images, 
+			views=self.ir2_images, 
 			K=self.ir2['K'], 
 			dist=self.ir2['dist'], 
 			master=False,
@@ -109,7 +108,7 @@ class MaaraExport(object):
 		
 	def save(self):
 		cameras = self.export_cameras()
-		np.save(self.base_path + "/export.npy", dict(master = 0, cameras=cameras, points=None))
+		np.save(self.base_path + "/export.npy", dict(master = 0, cameras=cameras))
 		
-		with open(base + ".json", 'w') as outfile:
-			json.dump(dict(master = master, cameras=cameras), outfile, cls=NumpyEncoder)
+		with open(self.base_path + "/export.json", 'w') as outfile:
+			json.dump(dict(master = 0, cameras=cameras), outfile, indent=4, cls=NumpyEncoder)
