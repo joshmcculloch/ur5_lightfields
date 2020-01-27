@@ -1,5 +1,5 @@
 import numpy as np
-from os.path import join, isdir
+from os.path import join, isdir, relpath
 from os import mkdir
 from PIL import Image
 import json
@@ -50,11 +50,11 @@ class MaaraExport(object):
 
         ir1_filename = join(self.ir1_dir, "%.5d.png" %self.image_counter)
         Image.fromarray(ir1_frame).save(ir1_filename)
-        self.ir1_images.append(dict(image=ir1_filename, location=pose[:3], rotation=np.identity(3)))
+        self.ir1_images.append(dict(image=relpath(ir1_filename, self.base_path), location=pose[:3], rotation=np.identity(3)))
 
         ir2_filename = join(self.ir2_dir, "%.5d.png" %self.image_counter)
         Image.fromarray(ir2_frame).save(ir2_filename)
-        self.ir2_images.append(dict(image=ir2_filename, location=pose[:3]+self.l2r['location'], rotation=np.identity(3)))
+        self.ir2_images.append(dict(image=relpath(ir2_filename, self.base_path), location=pose[:3]+self.l2r['location'], rotation=np.identity(3)))
 
         self.image_counter += 1
 
